@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD Personas</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Función para cargar todos los registros
+            function loadPersons() {
+                $.ajax({
+                    url: 'read.php',
+                    method: 'GET',
+                    success: function(data) {
+                        $('#personas').html('');
+                        data.forEach(persona => {
+                            $('#personas').append(`
+                                <tr>
+                                    <td>${persona.id}</td>
+                                    <td>${persona.doce_nombre}</td>
+                                    <td>${persona.doce_apellido}</td>
+                                    <td>${persona.per_cumple}</td>
+                                    <td>${persona.per_mail}</td>
+                                    <td>${persona.doce_cel}</td>
+                                    <td>
+                                        <button onclick="editPerson(${persona.id})">Editar</button>
+                                        <button onclick="deletePerson(${persona.id})">Eliminar</button>
+                                    </td>
+                                </tr>
+                            `);
+                        });
+                    }
+                });
+            }
+
+            // Cargar registros al cargar la página
+            loadPersons();
+
+            // Crear un nuevo registro
+            $('#form').on('submit', function(e) {
+                e.preventDefault();
+                const formData = $(this).serialize();
+                $.ajax({
+                    url: 'create.php',
+                    method: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        alert(response.message);
+                        loadPersons();
+                    }
+                });
+            });
+
+            // Función para editar un registro
+            window.editPerson = function(id) {
+                $.ajax({
+                    url: 'read.php',
+                    method: 'GET',
+                    data: { id: id },
+                    success: function(persona) {
+                        $('#update_id').val(persona.id);
+                        $('#update_nombre').val(persona.doce_nombre);
+                        $('#update_apellido').val(persona.doce_apellido);
+                        $('#update_cumple').val(persona.per_cumple);
+                        $('#update_email').val(persona.per_mail);
+                        $('#update_celular').val(persona.doce_cel);
+                    }
+                });
+            };
+
+            // Actualizar un registro existente
+            $('#updateForm').on('submit', function(e) {
+                e.preventDefault();
+                const formData = $(this).serialize();
+                $.ajax({
+                    url: 'update.php',
+                    method: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        alert(response.message);
+                        loadPersons();
+                    }
+                });
+            });
+
+            // Eliminar un registro
+            window.deletePerson = function(id) {
+                $.ajax({
+                    url: 'delete.php',
+                    method: 'POST',
+                    data: { id: id },
+                    success: function(response) {
+                        alert(response.message);
+                        loadPersons();
+                    }
+                });
+            };
+        });
+    </script>
+</head>
+<body>
+    <h1>CRUD Personas</h1>
+    <form id="form">
+        <label for="nombre">Nombre:</label><br>
+        <input type="text" id="nombre" name="nombre" required><br><br>
+        <label for="apellido">Apellido:</label><br>
+        <input type="text" id="apellido" name="apellido" required><br><br>
+        <label for="cumple">Fecha de Nacimiento:</label><br>
+        <input type="date" id="cumple" name="cumple" required><br><br>
+        <label for="email">Correo Electrónico:</label><br>
+        <input type="email" id="email" name="email" required><br><br>
+        <label for="celular">Número de Celular:</label><br>
+        <input type="text" id="celular" name="celular" required><br><br>
+        <input type="submit" value="Registrar">
+    </form>
+    <h2>Actualizar Persona</h2>
+    <form id="updateForm">
+        <input type="hidden" id="update_id" name="id">
+        <label for="update_nombre">Nombre:</label><br>
+        <input type="text" id="update_nombre" name="nombre" required><br><br>
+        <label for="update_apellido">Apellido:</label><br>
+        <input type="text" id="update_apellido" name="apellido" required><br><br>
+        <label for="update_cumple">Fecha de Nacimiento:</label><br>
+        <input type="date" id="update_cumple" name="cumple" required><br><br>
+        <label for="update_email">Correo Electrónico:</label><br>
+        <input type="email" id="update_email" name="email" required><br><br>
+        <label for="update_celular">Número de Celular:</label><br>
+        <input type="text" id="update_celular" name="celular" required><br><br>
+        <input type="submit" value="Actualizar">
+    </form>
+    <h2>Personas Registradas</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Fecha de Nacimiento</th>
+                <th>Correo Electrónico</th>
+                <th>Número de Celular</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="personas"></tbody>
+    </table>
+</body>
+</html>
